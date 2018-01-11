@@ -54,31 +54,27 @@ class JsonDeserializer implements IJsonaModelBuilder {
 
         // checks for built model in cachedModels is a protection from creating models on recursive relationships
         const entityKey = `${data.type}-${data.id}`;
-        let model = this.cachedModels[entityKey];
+        let model = this.pm.createModel(data.type);
 
-        if (!model) {
-            model = this.pm.createModel(data.type);
+        if (model) {
+            this.cachedModels[entityKey] = model;
 
-            if (model) {
-                this.cachedModels[entityKey] = model;
+            this.pm.setId(model, data.id);
 
-                this.pm.setId(model, data.id);
-
-                if (data.attributes) {
-                    this.pm.setAttributes(model, data.attributes);
-                }
-
-                if (data.meta) {
-                    this.pm.setMeta(model, data.meta);
-                }
-
-                const relationships: null | TJsonaRelationships = this.buildRelationsByData(data);
-
-                if (relationships) {
-                    this.pm.setRelationships(model, relationships);
-                }
-
+            if (data.attributes) {
+                this.pm.setAttributes(model, data.attributes);
             }
+
+            if (data.meta) {
+                this.pm.setMeta(model, data.meta);
+            }
+
+            const relationships: null | TJsonaRelationships = this.buildRelationsByData(data);
+
+            if (relationships) {
+                this.pm.setRelationships(model, relationships);
+            }
+
         }
 
         return model;
